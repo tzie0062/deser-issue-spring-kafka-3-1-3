@@ -1,5 +1,6 @@
 package com.example.kafkadlt;
 
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -55,7 +56,8 @@ public class KafkaDltApplication {
 		public void processRopEvent(
 			@Payload Integer event,
 			@Header(name = KafkaHeaders.RECEIVED_KEY, required = false, defaultValue = "n/a") String key,
-			@Header(name = SerializationUtils.VALUE_DESERIALIZER_EXCEPTION_HEADER, required = false) byte[] deSerializationErrorHeader) {
+			@Header(name = SerializationUtils.VALUE_DESERIALIZER_EXCEPTION_HEADER,
+				required = false) RecordHeader deSerializationErrorHeader) {
 			if (deSerializationErrorHeader != null) {
 				log.info("Skipping event with key {} because of deSer issue.", key);
 				received = event;
@@ -65,7 +67,7 @@ public class KafkaDltApplication {
 			this.received = event;
 		}
 
-		public void clear(){
+		public void clear() {
 			this.received = null;
 		}
 	}

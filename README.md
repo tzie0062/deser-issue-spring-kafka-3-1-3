@@ -22,3 +22,7 @@ Update the `spring-boot-starter-parent` in the `pom.xml` to `3.2.4` and run the 
 
 The `deserIssue` test fails: `FailedDeserializationFunction` is still called, but a `DeadLetterPublishingRecoverer` tries to send
 the faulty event to `test-topic-kafka-dlt-retry-0` which consistently fails and leads to an infinite loop.
+
+## Fix
+Question: https://stackoverflow.com/questions/78207314/possible-deserialization-issue-with-spring-kafka-3-1-3/
+includes the fix: use `org.apache.kafka.common.header.internals.RecordHeader` instead of `byte[]` for the exception header.
