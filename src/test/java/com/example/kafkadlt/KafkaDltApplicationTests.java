@@ -1,6 +1,7 @@
 package com.example.kafkadlt;
 
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,5 +72,18 @@ class KafkaDltApplicationTests {
 			.atMost(10L, TimeUnit.SECONDS)
 			.pollInterval(100L, TimeUnit.MILLISECONDS)
 			.until(() -> eventListener.getReceived() != null && Integer.valueOf(0).compareTo(eventListener.getReceived()) == 0);
+	}
+
+	@Test
+	void retryAndDlt(){
+		kafkaTemplateInt.send(topic, "baz", 42);
+		await()
+			.atLeast(1L, TimeUnit.MILLISECONDS)
+			.atMost(10L, TimeUnit.SECONDS)
+			.pollInterval(100L, TimeUnit.MILLISECONDS)
+			.until(() -> eventListener.getDltEvent() != null);
+		KafkaDltApplication.Tuple dltEvent = eventListener.getDltEvent();
+		assertEquals("baz", dltEvent.key());
+		assertEquals(42, dltEvent.value());
 	}
 }
